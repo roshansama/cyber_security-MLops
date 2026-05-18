@@ -1,7 +1,6 @@
 from sklearn.ensemble import (
     RandomForestClassifier,
-    AdaBoostClassifier,
-    GradientBoostingClassifier
+    AdaBoostClassifier
 )
 
 from xgboost import XGBClassifier
@@ -28,11 +27,11 @@ def get_models():
             random_state=42
         ),
 
-        "GradientBoosting":
-        GradientBoostingClassifier(
-            n_estimators=100,
-            random_state=42
-        ),
+        # "GradientBoosting":
+        # GradientBoostingClassifier(
+        #     n_estimators=100,
+        #     random_state=42
+        # ),
 
         "XGBoost":
         XGBClassifier(

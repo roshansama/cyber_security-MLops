@@ -1,4 +1,6 @@
+import os
 import time
+import joblib
 import pandas as pd
 
 from sklearn.metrics import (
@@ -22,32 +24,85 @@ from src.models.model_factory import (
 )
 
 
-# Load processed dataset
+# =========================
+# Paths
+# =========================
+
 DATA_PATH = (
     r"D:\MLOPS\data\processed"
     r"\cleaned_cicids2017.csv"
 )
 
+RESULTS_PATH = (
+    r"D:\MLOPS\data\processed"
+    r"\model_comparison_results.csv"
+)
+
+MODEL_SAVE_DIR = (
+    r"D:\MLOPS\models"
+)
+
+
+# Create models directory if missing
+os.makedirs(
+    MODEL_SAVE_DIR,
+    exist_ok=True
+)
+
+
+# =========================
+# Load Dataset
+# =========================
+
+print("\nLoading dataset...")
+
 df = pd.read_csv(DATA_PATH)
 
+print("Dataset Loaded")
 
-# Create binary target
+
+# =========================
+# Feature Engineering
+# =========================
+
+print("\nCreating binary target...")
+
 df = create_binary_target(df)
 
+print("Binary target created")
 
-# Split data
+
+# =========================
+# Train-Test Split
+# =========================
+
+print("\nSplitting dataset...")
+
 X_train, X_test, y_train, y_test = split_data(df)
 
+print("Dataset split completed")
 
-# Load models
+
+# =========================
+# Load Models
+# =========================
+
 models = get_models()
 
 
-# Store results
+# =========================
+# Benchmark Models
+# =========================
+
 results = []
 
+best_model = None
 
-# Train and evaluate models
+best_model_name = ""
+
+best_roc_auc = 0
+
+
 for model_name, model in models.items():
 
     print(f"\nTraining {model_name}...")
@@ -64,21 +119,36 @@ for model_name, model in models.items():
     # Predictions
     y_pred = model.predict(X_test)
 
-    # Probability predictions
+    # Probabilities
     y_prob = model.predict_proba(X_test)[:, 1]
 
     # Metrics
-    accuracy = accuracy_score(y_test, y_pred)
+    accuracy = accuracy_score(
+        y_test,
+        y_pred
+    )
 
-    precision = precision_score(y_test, y_pred)
+    precision = precision_score(
+        y_test,
+        y_pred
+    )
 
-    recall = recall_score(y_test, y_pred)
+    recall = recall_score(
+        y_test,
+        y_pred
+    )
 
-    f1 = f1_score(y_test, y_pred)
+    f1 = f1_score(
+        y_test,
+        y_pred
+    )
 
-    roc_auc = roc_auc_score(y_test, y_prob)
+    roc_auc = roc_auc_score(
+        y_test,
+        y_prob
+    )
 
-    # Save results
+    # Store results
     results.append({
         "Model": model_name,
         "Accuracy": accuracy,
@@ -89,28 +159,73 @@ for model_name, model in models.items():
         "Training Time (s)": training_time
     })
 
-    print(f"{model_name} Completed")
+    print(f"{model_name} completed")
+
+    print(f"ROC-AUC: {roc_auc}")
+
+    # Track best model
+    if roc_auc > best_roc_auc:
+
+        best_roc_auc = roc_auc
+
+        best_model = model
+
+        best_model_name = model_name
 
 
-# Convert to DataFrame
+# =========================
+# Save Results
+# =========================
+
 results_df = pd.DataFrame(results)
 
-
-# Sort by ROC-AUC
 results_df = results_df.sort_values(
     by="ROC AUC",
     ascending=False
 )
 
-
-# Display results
-print("\nModel Comparison Results:\n")
-
-print(results_df)
-
-
-# Save results
 results_df.to_csv(
-    r"D:\MLOPS\data\processed\model_comparison_results.csv",
+    RESULTS_PATH,
     index=False
 )
+
+print("\nModel comparison results saved")
+
+
+# =========================
+# Save Best Model
+# =========================
+
+best_model_path = (
+    f"{MODEL_SAVE_DIR}"
+    f"\\best_model.pkl"
+)
+
+joblib.dump(
+    best_model,
+    best_model_path
+)
+
+print(
+    f"\nBest model saved: "
+    f"{best_model_name}"
+)
+
+print(
+    f"Best ROC-AUC: "
+    f"{best_roc_auc}"
+)
+
+print(
+    f"Model saved at:\n"
+    f"{best_model_path}"
+)
+
+
+# =========================
+# Display Results
+# =========================
+
+print("\nFinal Benchmark Results:\n")
+
+print(results_df)
