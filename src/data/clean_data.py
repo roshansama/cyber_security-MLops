@@ -12,6 +12,12 @@ CONSTANT_COLUMNS = [
     'Bwd Avg Bulk Rate'
 ]
 
+duplicate_cols = [
+    'Fwd Header Length.1',
+    'Subflow Fwd Packets',
+    'Subflow Bwd Packets'
+]
+
 
 def clean_dataset(df):
 
@@ -51,5 +57,7 @@ def clean_dataset(df):
     inplace=True,
     errors='ignore'
 )
+    
+    df.drop(columns=duplicate_cols, inplace=True)
 
     return df
