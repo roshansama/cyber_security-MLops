@@ -1,0 +1,19 @@
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Dataset files
+data/raw/
+data/processed/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
