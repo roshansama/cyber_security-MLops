@@ -17,3 +17,7 @@ data/processed/
 
 # Logs
 *.log
+
+models/*.pkl
+
+*.csv
