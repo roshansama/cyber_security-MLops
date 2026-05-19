@@ -30,13 +30,11 @@ from src.features.build_features import (
 # =====================================
 
 DATA_PATH = (
-    r"D:\MLOPS\data\processed"
-    r"\drift_dataset.csv"
+    "data/processed/drift_dataset.csv"
 )
 
 MODEL_SAVE_PATH = (
-    r"D:\MLOPS\models"
-    r"\enhanced_drift_xgboost.pkl"
+    "models/enhanced_drift_xgboost.pkl"
 )
 
 

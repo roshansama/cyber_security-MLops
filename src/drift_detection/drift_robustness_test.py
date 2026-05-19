@@ -2,10 +2,14 @@ import pandas as pd
 import joblib
 
 from sklearn.metrics import (
+
     accuracy_score,
     classification_report,
     confusion_matrix,
-    roc_auc_score
+    roc_auc_score,
+    precision_score,
+    recall_score,
+    f1_score
 )
 
 from xgboost import XGBClassifier
@@ -14,128 +18,162 @@ from src.features.build_features import (
     create_binary_target
 )
 
-
 # =====================================
-# Paths
+# FILE PATHS
 # =====================================
 
 DATA_PATH = (
-    r"D:\MLOPS\data\processed"
-    r"\drift_dataset.csv"
+    "data/processed/drift_dataset.csv"
 )
 
 MODEL_SAVE_PATH = (
-    r"D:\MLOPS\models"
-    r"\drift_robust_xgboost.pkl"
+    "models/drift_robust_xgboost.pkl"
 )
 
-
 # =====================================
-# Load Dataset
+# LOAD DATASET
 # =====================================
 
 print("\nLoading drift dataset...")
 
-df = pd.read_csv(DATA_PATH)
+df = pd.read_csv(
+    DATA_PATH
+)
 
-print("Dataset loaded")
-
+print("Drift dataset loaded successfully")
 
 # =====================================
-# Feature Engineering
+# FEATURE ENGINEERING
 # =====================================
+
+print("\nCreating binary target...")
 
 df = create_binary_target(df)
 
-print("Binary target created")
-
+print("Binary target created successfully")
 
 # =====================================
-# Train/Test Temporal Split
+# TEMPORAL TRAIN / TEST SPLIT
 # =====================================
+
+print("\nCreating temporal train-test split...")
 
 train_df = df[
-    df['Day'].isin([
-        'Monday',
-        'Tuesday'
+    df["Day"].isin([
+        "Monday",
+        "Tuesday"
     ])
 ]
 
 test_df = df[
-    df['Day'] == 'Friday'
+    df["Day"] == "Friday"
 ]
 
-print("\nTrain Shape:")
-print(train_df.shape)
+print(f"\nTrain Dataset Shape: {train_df.shape}")
 
-print("\nTest Shape:")
-print(test_df.shape)
-
+print(f"\nTest Dataset Shape: {test_df.shape}")
 
 # =====================================
-# Features & Target
+# FEATURES & TARGET
 # =====================================
 
 drop_columns = [
-    'Label',
-    'Binary_Label',
-    'Day'
+
+    "Label",
+    "Binary_Label",
+    "Day"
 ]
+
+print("\nPreparing feature matrices...")
 
 X_train = train_df.drop(
     columns=drop_columns
 )
 
-y_train = train_df['Binary_Label']
+y_train = train_df["Binary_Label"]
 
 X_test = test_df.drop(
     columns=drop_columns
 )
 
-y_test = test_df['Binary_Label']
+y_test = test_df["Binary_Label"]
 
+print("Feature matrices prepared successfully")
 
 # =====================================
-# Train Model
+# TRAIN MODEL
 # =====================================
 
-print("\nTraining XGBoost model...")
+print("\nTraining XGBoost drift-robust model...")
 
 model = XGBClassifier(
 
     random_state=42,
 
-    eval_metric='logloss',
+    eval_metric="logloss",
 
-    use_label_encoder=False
+    use_label_encoder=False,
+
+    n_estimators=200,
+
+    max_depth=8,
+
+    learning_rate=0.1,
+
+    subsample=0.8,
+
+    colsample_bytree=0.8,
+
+    n_jobs=-1
 )
 
 model.fit(
+
     X_train,
+
     y_train
 )
 
-print("Model trained")
-
+print("XGBoost model trained successfully")
 
 # =====================================
-# Predictions
+# GENERATE PREDICTIONS
 # =====================================
 
 print("\nGenerating predictions...")
 
-y_pred = model.predict(X_test)
+y_pred = model.predict(
+    X_test
+)
 
-y_prob = model.predict_proba(X_test)[:, 1]
+y_prob = model.predict_proba(
+    X_test
+)[:, 1]
 
-print("Predictions generated")
-
+print("Predictions generated successfully")
 
 # =====================================
-# Evaluation
+# EVALUATION METRICS
 # =====================================
+
+print("\nCalculating evaluation metrics...")
 
 accuracy = accuracy_score(
+    y_test,
+    y_pred
+)
+
+precision = precision_score(
+    y_test,
+    y_pred
+)
+
+recall = recall_score(
+    y_test,
+    y_pred
+)
+
+f1 = f1_score(
     y_test,
     y_pred
 )
@@ -145,43 +183,93 @@ roc_auc = roc_auc_score(
     y_prob
 )
 
-print("\n==============================")
-print("DRIFT ROBUSTNESS RESULTS")
-print("==============================")
+# =====================================
+# DISPLAY RESULTS
+# =====================================
 
-print(f"\nAccuracy: {accuracy}")
+print("\n=====================================")
+print("DRIFT ROBUSTNESS EVALUATION RESULTS")
+print("=====================================")
 
-print(f"\nROC-AUC: {roc_auc}")
+print(f"\nAccuracy  : {round(accuracy, 6)}")
 
-print("\nClassification Report:\n")
+print(f"\nPrecision : {round(precision, 6)}")
+
+print(f"\nRecall    : {round(recall, 6)}")
+
+print(f"\nF1 Score  : {round(f1, 6)}")
+
+print(f"\nROC-AUC   : {round(roc_auc, 6)}")
+
+# =====================================
+# CLASSIFICATION REPORT
+# =====================================
+
+print("\n=====================================")
+print("CLASSIFICATION REPORT")
+print("=====================================\n")
 
 print(
+
     classification_report(
+
         y_test,
+
         y_pred
     )
 )
 
-print("\nConfusion Matrix:\n")
+# =====================================
+# CONFUSION MATRIX
+# =====================================
+
+print("\n=====================================")
+print("CONFUSION MATRIX")
+print("=====================================\n")
 
 print(
+
     confusion_matrix(
+
         y_test,
+
         y_pred
     )
 )
 
+# =====================================
+# SAVE MODEL
+# =====================================
 
-# =====================================
-# Save Model
-# =====================================
+print("\nSaving drift-robust XGBoost model...")
 
 joblib.dump(
+
     model,
+
     MODEL_SAVE_PATH
 )
 
-print(
-    f"\nModel saved at:\n"
-    f"{MODEL_SAVE_PATH}"
-)
+print("Model saved successfully")
+
+print(f"\nModel Path:\n{MODEL_SAVE_PATH}")
+
+# =====================================
+# FINAL SUMMARY
+# =====================================
+
+print("\n=====================================")
+print("DRIFT ROBUSTNESS PIPELINE COMPLETE")
+print("=====================================")
+
+print("\nPipeline Achievements:")
+
+print("- Temporal drift validation completed")
+
+print("- Cross-day robustness evaluated")
+
+print("- Production-grade XGBoost model trained")
+
+print("- Model artifact exported successfully")
+
+print("- Drift resilience benchmark completed")

@@ -2,7 +2,7 @@ import joblib
 
 
 MODEL_PATH = (
-    r"D:\MLOPS\models"
+    r"models"
     r"\enhanced_drift_xgboost.pkl"
 )
 

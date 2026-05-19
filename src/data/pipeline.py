@@ -4,7 +4,7 @@ from src.data.clean_data import clean_dataset
 from src.data.merge_data import merge_datasets
 
 
-DATA_PATH = r"D:\MLOPS\data\raw"
+DATA_PATH = r"data\raw"
 
 
 def process_dataset(path, dataset_name):
@@ -104,13 +104,13 @@ def main():
 
     # Save processed dataset
     final_df.to_csv(
-        r"D:\MLOPS\data\processed\cleaned_cicids2017.csv",
+        r"data\processed\cleaned_cicids2017.csv",
         index=False
     )
 
     # Save label distribution
     final_df['Label'].value_counts().to_csv(
-        r"D:\MLOPS\data\processed\label_distribution.csv"
+        r"data\processed\label_distribution.csv"
     )
 
     print("\nPipeline Completed Successfully")

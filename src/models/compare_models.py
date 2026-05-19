@@ -29,18 +29,14 @@ from src.models.model_factory import (
 # =========================
 
 DATA_PATH = (
-    r"D:\MLOPS\data\processed"
-    r"\cleaned_cicids2017.csv"
+    "data/processed/cleaned_cicids2017.csv"
 )
 
 RESULTS_PATH = (
-    r"D:\MLOPS\data\processed"
-    r"\model_comparison_results.csv"
+    "data/processed/model_comparison_results.csv"
 )
 
-MODEL_SAVE_DIR = (
-    r"D:\MLOPS\models"
-)
+MODEL_SAVE_DIR = "models"
 
 
 # Create models directory if missing
@@ -198,7 +194,7 @@ print("\nModel comparison results saved")
 
 best_model_path = (
     f"{MODEL_SAVE_DIR}"
-    f"\\best_model.pkl"
+    f"/best_model.pkl"
 )
 
 joblib.dump(

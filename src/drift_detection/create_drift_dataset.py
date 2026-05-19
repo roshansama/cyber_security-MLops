@@ -4,64 +4,59 @@ from src.data.clean_data import (
     clean_dataset
 )
 
-
 # =====================================
-# File Paths
+# FILE PATHS
 # =====================================
 
 MONDAY_PATH = (
-    r"D:\MLOPS\data\raw"
-    r"\Monday-WorkingHours.pcap_ISCX.csv"
+    "data/raw/Monday-WorkingHours.pcap_ISCX.csv"
 )
 
 TUESDAY_PATH = (
-    r"D:\MLOPS\data\raw"
-    r"\Tuesday-WorkingHours.pcap_ISCX.csv"
+    "data/raw/Tuesday-WorkingHours.pcap_ISCX.csv"
 )
 
 WEDNESDAY_PATH = (
-    r"D:\MLOPS\data\raw"
-    r"\Wednesday-workingHours.pcap_ISCX.csv"
+    "data/raw/Wednesday-workingHours.pcap_ISCX.csv"
 )
 
 THURSDAY_MORNING_PATH = (
-    r"D:\MLOPS\data\raw"
-    r"\Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv"
+    "data/raw/Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv"
 )
 
 THURSDAY_AFTERNOON_PATH = (
-    r"D:\MLOPS\data\raw"
-    r"\Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv"
+    "data/raw/Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv"
 )
 
 FRIDAY_MORNING_PATH = (
-    r"D:\MLOPS\data\raw"
-    r"\Friday-WorkingHours-Morning.pcap_ISCX.csv"
+    "data/raw/Friday-WorkingHours-Morning.pcap_ISCX.csv"
 )
 
 FRIDAY_DDOS_PATH = (
-    r"D:\MLOPS\data\raw"
-    r"\Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv"
+    "data/raw/Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv"
 )
 
 FRIDAY_PORTSCAN_PATH = (
-    r"D:\MLOPS\data\raw"
-    r"\Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv"
+    "data/raw/Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv"
 )
 
-
 # =====================================
-# Load Datasets
+# LOAD DATASETS
 # =====================================
 
 print("\nLoading datasets...")
 
+monday = pd.read_csv(
+    MONDAY_PATH
+)
 
-monday = pd.read_csv(MONDAY_PATH)
+tuesday = pd.read_csv(
+    TUESDAY_PATH
+)
 
-tuesday = pd.read_csv(TUESDAY_PATH)
-
-wednesday = pd.read_csv(WEDNESDAY_PATH)
+wednesday = pd.read_csv(
+    WEDNESDAY_PATH
+)
 
 thursday_morning = pd.read_csv(
     THURSDAY_MORNING_PATH
@@ -83,11 +78,10 @@ friday_portscan = pd.read_csv(
     FRIDAY_PORTSCAN_PATH
 )
 
-print("Datasets loaded")
-
+print("Datasets loaded successfully")
 
 # =====================================
-# Standardize Column Names
+# STANDARDIZE COLUMN NAMES
 # =====================================
 
 datasets = [
@@ -102,6 +96,8 @@ datasets = [
     friday_portscan
 ]
 
+print("\nStandardizing column names...")
+
 for dataset in datasets:
 
     dataset.columns = (
@@ -109,92 +105,134 @@ for dataset in datasets:
         .str.strip()
     )
 
-# =====================================
-# Add Day Metadata
-# =====================================
-
-monday['Day'] = 'Monday'
-
-tuesday['Day'] = 'Tuesday'
-
-wednesday['Day'] = 'Wednesday'
-
-thursday_morning['Day'] = 'Thursday'
-
-thursday_afternoon['Day'] = 'Thursday'
-
-friday_morning['Day'] = 'Friday'
-
-friday_ddos['Day'] = 'Friday'
-
-friday_portscan['Day'] = 'Friday'
-
+print("Column names standardized")
 
 # =====================================
-# Merge Same-Day Files
+# ADD DAY METADATA
 # =====================================
 
-thursday = pd.concat([
-    thursday_morning,
-    thursday_afternoon
-])
+print("\nAdding day metadata...")
 
-friday = pd.concat([
-    friday_morning,
-    friday_ddos,
-    friday_portscan
-])
+monday["Day"] = "Monday"
 
+tuesday["Day"] = "Tuesday"
 
-# =====================================
-# Combine All Days
-# =====================================
+wednesday["Day"] = "Wednesday"
 
-print("\nCombining datasets...")
+thursday_morning["Day"] = "Thursday"
 
-df = pd.concat([
+thursday_afternoon["Day"] = "Thursday"
 
-    monday,
-    tuesday,
-    wednesday,
-    thursday,
-    friday
+friday_morning["Day"] = "Friday"
 
-])
+friday_ddos["Day"] = "Friday"
 
-print("Datasets combined")
+friday_portscan["Day"] = "Friday"
 
+print("Day metadata added")
 
 # =====================================
-# Clean Dataset
+# MERGE SAME-DAY FILES
+# =====================================
+
+print("\nMerging same-day datasets...")
+
+thursday = pd.concat(
+
+    [
+
+        thursday_morning,
+        thursday_afternoon
+    ],
+
+    ignore_index=True
+)
+
+friday = pd.concat(
+
+    [
+
+        friday_morning,
+        friday_ddos,
+        friday_portscan
+    ],
+
+    ignore_index=True
+)
+
+print("Same-day datasets merged")
+
+# =====================================
+# COMBINE ALL DAYS
+# =====================================
+
+print("\nCombining all datasets...")
+
+df = pd.concat(
+
+    [
+
+        monday,
+        tuesday,
+        wednesday,
+        thursday,
+        friday
+    ],
+
+    ignore_index=True
+)
+
+print("All datasets combined successfully")
+
+# =====================================
+# DATASET SHAPE BEFORE CLEANING
+# =====================================
+
+print(f"\nRaw Dataset Shape: {df.shape}")
+
+# =====================================
+# CLEAN DATASET
 # =====================================
 
 print("\nCleaning dataset...")
 
 df = clean_dataset(df)
 
-print("Dataset cleaned")
-
+print("Dataset cleaned successfully")
 
 # =====================================
-# Save Drift Dataset
+# DATASET SHAPE AFTER CLEANING
+# =====================================
+
+print(f"\nCleaned Dataset Shape: {df.shape}")
+
+# =====================================
+# SAVE DRIFT DATASET
 # =====================================
 
 OUTPUT_PATH = (
-    r"D:\MLOPS\data\processed"
-    r"\drift_dataset.csv"
+    "data/processed/drift_dataset.csv"
 )
 
+print("\nSaving drift dataset...")
+
 df.to_csv(
+
     OUTPUT_PATH,
+
     index=False
 )
 
-print("\nDrift dataset saved")
+print("Drift dataset saved successfully")
 
-print(f"\nFinal Shape: {df.shape}")
+# =====================================
+# FINAL SUMMARY
+# =====================================
 
-print(
-    f"\nDataset saved at:\n"
-    f"{OUTPUT_PATH}"
-)
+print("\n=====================================")
+print("DRIFT DATASET PIPELINE COMPLETE")
+print("=====================================")
+
+print(f"\nFinal Dataset Shape: {df.shape}")
+
+print(f"\nDataset saved at:\n{OUTPUT_PATH}")

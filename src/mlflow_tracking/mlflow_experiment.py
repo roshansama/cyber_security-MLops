@@ -40,15 +40,9 @@ mlflow.set_experiment(
 # Paths
 # =====================================
 
-DATA_PATH = (
-    r"D:\MLOPS\data\processed"
-    r"\drift_dataset.csv"
-)
+DATA_PATH = "data/processed/drift_dataset.csv"
 
-MODEL_SAVE_PATH = (
-    r"D:\MLOPS\models"
-    r"\mlflow_xgboost.pkl"
-)
+MODEL_SAVE_PATH = "models/mlflow_xgboost.pkl"
 
 
 # =====================================

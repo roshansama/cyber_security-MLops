@@ -31,7 +31,7 @@ with open(
 # =========================================
 
 df = pd.read_csv(
-    r"D:\MLOPS\data\processed\psi_drift_results.csv"
+    r"data\processed\psi_drift_results.csv"
 )
 
 # =========================================

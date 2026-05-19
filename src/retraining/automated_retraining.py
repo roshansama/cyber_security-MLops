@@ -31,19 +31,19 @@ warnings.filterwarnings(
 DRIFT_THRESHOLD = 0.25
 
 MODEL_SAVE_PATH = (
-    r"D:\MLOPS\models"
+    "models"
 )
 
 CURRENT_MODEL_PATH = (
-    r"D:\MLOPS\models\enhanced_drift_xgboost.pkl"
+    "models/enhanced_drift_xgboost.pkl"
 )
 
 DRIFT_RESULTS_PATH = (
-    r"D:\MLOPS\data\processed\psi_drift_results.csv"
+    "data/processed/psi_drift_results.csv"
 )
 
 DATASET_PATH = (
-    r"D:\MLOPS\data\processed\drift_dataset.csv"
+    "data/processed/drift_dataset.csv"
 )
 
 
