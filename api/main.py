@@ -4,6 +4,10 @@ from api.prediction_router import (
     router
 )
 
+from api.batch_router import (
+    router as batch_router
+)
+
 
 app = FastAPI(
 
@@ -38,3 +42,10 @@ def health():
 app.include_router(
     router
 )
+
+app.include_router(
+    batch_router
+)
+
+
+
