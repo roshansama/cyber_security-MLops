@@ -1,4 +1,5 @@
 import pandas as pd
+import shap
 
 from fastapi import APIRouter
 
@@ -10,23 +11,40 @@ from api.model_loader import (
     model
 )
 
-from api.shap_explainer import (
-    generate_shap_explanation
-)
-
 from api.feature_alignment import (
     align_features
 )
 
 
+# =====================================
+# ROUTER
+# =====================================
+
 router = APIRouter()
 
+
+# =====================================
+# SHAP EXPLAINER
+# =====================================
+
+explainer = shap.TreeExplainer(
+    model
+)
+
+
+# =====================================
+# PREDICTION ENDPOINT
+# =====================================
 
 @router.post("/predict")
 
 def predict_attack(
     data: NetworkTrafficInput
 ):
+
+    # =================================
+    # INPUT DATAFRAME
+    # =================================
 
     input_data = pd.DataFrame([{
 
@@ -74,48 +92,109 @@ def predict_attack(
     }])
 
 
-    # ================================
-    # ALIGN FEATURES
-    # ================================
+    # =================================
+    # FEATURE ALIGNMENT
+    # =================================
 
     aligned_input = align_features(
         input_data
     )
 
 
-    # ================================
-    # PREDICTION
-    # ================================
+    # =================================
+    # MODEL PREDICTION
+    # =================================
 
     probability = model.predict_proba(
         aligned_input
     )[0][1]
+
 
     prediction = int(
         probability >= 0.30
     )
 
 
-    # ================================
-    # SHAP EXPLANATION
-    # ================================
+    prediction_label = (
 
-    shap_results = (
-        generate_shap_explanation(
-            aligned_input
+        "Attack"
+
+        if prediction == 1
+
+        else "Benign"
+    )
+
+
+    # =================================
+    # SHAP VALUES
+    # =================================
+
+    shap_values = explainer.shap_values(
+        aligned_input
+    )
+
+
+    # =================================
+    # HANDLE XGBOOST OUTPUT
+    # =================================
+
+    if isinstance(
+        shap_values,
+        list
+    ):
+
+        shap_array = shap_values[1][0]
+
+    else:
+
+        shap_array = shap_values[0]
+
+
+    # =================================
+    # FEATURE IMPORTANCE
+    # =================================
+
+    feature_importance = dict(
+
+        zip(
+
+            aligned_input.columns,
+
+            shap_array.tolist()
         )
     )
 
 
+    # =================================
+    # TOP FEATURES
+    # =================================
+
+    top_features = dict(
+
+        sorted(
+
+            feature_importance.items(),
+
+            key=lambda x: abs(x[1]),
+
+            reverse=True
+
+        )[:5]
+    )
+
+
+    # =================================
+    # RESPONSE
+    # =================================
+
     return {
 
-        "prediction": prediction,
+        "prediction":
+            prediction_label,
 
         "attack_probability":
             float(probability),
 
         "top_features":
-            shap_results.to_dict(
-                orient="records"
-            )
+            top_features
     }
